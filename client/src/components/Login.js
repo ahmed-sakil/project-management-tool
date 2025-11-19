@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { API_URL } from "../config"; // <--- NEW IMPORT
 
 const Login = ({ setAuth }) => {
     const [inputs, setInputs] = useState({
@@ -18,13 +19,12 @@ const Login = ({ setAuth }) => {
     try {
       const body = { email, password };
       
-      // THIS IS THE MISSING PART YOU NEED:
-      const response = await fetch('http://localhost:5000/api/auth/login', {
+      // UPDATED PATH
+      const response = await fetch(`${API_URL}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body)
       });
-      // ----------------------------------
 
       const parseRes = await response.json();
 

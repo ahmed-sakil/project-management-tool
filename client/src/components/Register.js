@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom'; // To link to the Login page
+import { Link } from 'react-router-dom'; 
+import { API_URL } from "../config"; // <--- NEW IMPORT
 
 const Register = ({ setAuth }) => {
     const [inputs, setInputs] = useState({
         email: '',
         password: '',
-        name: '' // Optional, but good to have ready
+        name: '' 
     });
 
     const { email, password, name } = inputs;
@@ -15,12 +16,12 @@ const Register = ({ setAuth }) => {
     };
 
     const onSubmitForm = async (e) => {
-        e.preventDefault(); // Stop browser from refreshing
+        e.preventDefault(); 
         try {
             const body = { email, password, name };
 
-            // Call the Backend API
-            const response = await fetch('http://localhost:5000/api/auth/register', {
+            // UPDATED PATH
+            const response = await fetch(`${API_URL}/api/auth/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(body)

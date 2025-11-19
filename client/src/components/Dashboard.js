@@ -1,18 +1,33 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { API_URL } from "../config"; // <--- NEW IMPORT
 
 const Dashboard = ({ setAuth }) => {
   const [boards, setBoards] = useState([]);
   const [title, setTitle] = useState("");
 
   // 1. Fetch existing boards from the server
+  // 1. Fetch existing boards from the server
   async function getBoards() {
     try {
-      const response = await fetch("http://localhost:5000/api/boards", {
+      const response = await fetch(`${API_URL}/api/boards`, {
         headers: { token: localStorage.token },
       });
       const parseRes = await response.json();
-      setBoards(parseRes);
+
+      // SAFETY CHECK: Is it an array?
+      if (Array.isArray(parseRes)) {
+        setBoards(parseRes);
+      } else {
+        console.error("Server Error:", parseRes);
+        // If server returns an error (like invalid token), reset boards
+        setBoards([]); 
+        // Optional: If token is bad, force logout
+        if (response.status === 403 || response.status === 401) {
+             localStorage.removeItem("token");
+             setAuth(false);
+        }
+      }
     } catch (err) {
       console.error(err.message);
     }
@@ -23,7 +38,8 @@ const Dashboard = ({ setAuth }) => {
     e.preventDefault();
     try {
       const body = { title };
-      const response = await fetch("http://localhost:5000/api/boards", {
+      // UPDATED PATH
+      const response = await fetch(`${API_URL}/api/boards`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

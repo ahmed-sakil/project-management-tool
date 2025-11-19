@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { useDroppable } from '@dnd-kit/core';
 import CardItem from './CardItem'; 
+import { API_URL } from "../config"; // <--- NEW IMPORT
 
 const List = ({ list, cards, setCards }) => {
   const [newCardTitle, setNewCardTitle] = useState("");
@@ -17,7 +18,9 @@ const List = ({ list, cards, setCards }) => {
     e.preventDefault();
     try {
       const body = { title: newCardTitle, list_id: list.id };
-      const response = await fetch("http://localhost:5000/api/cards", {
+      
+      // UPDATED PATH: Uses API_URL
+      const response = await fetch(`${API_URL}/api/cards`, {
         method: "POST",
         headers: { "Content-Type": "application/json", token: localStorage.token },
         body: JSON.stringify(body),

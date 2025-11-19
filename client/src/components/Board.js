@@ -9,6 +9,7 @@ import {
   PointerSensor 
 } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
+import { API_URL } from "../config"; // <--- NEW IMPORT
 
 const Board = () => {
   const { id } = useParams();
@@ -49,7 +50,8 @@ const Board = () => {
   const updateCardPosition = async (cardId, newListId, newOrder) => {
       try {
           const body = { list_id: newListId, order: newOrder };
-          await fetch(`http://localhost:5000/api/cards/${cardId}`, {
+          // UPDATED PATH
+          await fetch(`${API_URL}/api/cards/${cardId}`, {
               method: 'PUT',
               headers: { 'Content-Type': 'application/json', token: localStorage.token },
               body: JSON.stringify(body),
@@ -59,7 +61,8 @@ const Board = () => {
 
   const saveNewCardOrder = async (cardsToUpdate) => {
     try {
-        await fetch(`http://localhost:5000/api/cards/reorder`, {
+        // UPDATED PATH
+        await fetch(`${API_URL}/api/cards/reorder`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json', token: localStorage.token },
             body: JSON.stringify({ cards: cardsToUpdate }),
@@ -71,16 +74,17 @@ const Board = () => {
     try {
       const header = { headers: { token: localStorage.token } };
       
-      const boardRes = await fetch(`http://localhost:5000/api/boards/${id}`, header);
+      // UPDATED PATHS (3 Fetch calls here)
+      const boardRes = await fetch(`${API_URL}/api/boards/${id}`, header);
       setBoard(await boardRes.json());
 
-      const listRes = await fetch(`http://localhost:5000/api/lists/${id}`, header);
+      const listRes = await fetch(`${API_URL}/api/lists/${id}`, header);
       const listData = await listRes.json();
       setLists(listData);
       
       const cardsMap = {};
       const cardPromises = listData.map(async (list) => {
-          const cardRes = await fetch(`http://localhost:5000/api/cards/${list.id}`, header);
+          const cardRes = await fetch(`${API_URL}/api/cards/${list.id}`, header);
           const cards = await cardRes.json();
           cardsMap[list.id] = cards;
       });
@@ -154,7 +158,8 @@ const Board = () => {
     e.preventDefault();
     try {
       const body = { title: newListTitle, board_id: id };
-      const response = await fetch("http://localhost:5000/api/lists", {
+      // UPDATED PATH
+      const response = await fetch(`${API_URL}/api/lists`, {
         method: "POST",
         headers: { "Content-Type": "application/json", token: localStorage.token },
         body: JSON.stringify(body),
