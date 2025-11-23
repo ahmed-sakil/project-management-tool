@@ -1,25 +1,27 @@
 const { Pool } = require('pg');
 require('dotenv').config();
 
-/**
- * PostgreSQL Connection Pool
- * Manages concurrent connections to the database using the connection string
- * defined in the environment variables (DATABASE_URL).
- */
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  // Note: If deploying to production (e.g., Render/Heroku) without a custom domain, 
-  // you may need to uncomment the SSL config below:
-  // ssl: { rejectUnauthorized: false }
-});
+const devConfig = {
+  connectionString: `postgresql://${process.env.PG_USER}:${process.env.PG_PASSWORD}@${process.env.PG_HOST}:${process.env.PG_PORT}/${process.env.PG_DATABASE}`
+};
+
+const proConfig = {
+  connectionString: process.env.DATABASE_URL, // Comes from Render Env Vars
+  ssl: {
+    rejectUnauthorized: false // <--- REQUIRED for Render
+  }
+};
+
+const pool = new Pool(
+  process.env.NODE_ENV === "production" ? proConfig : devConfig
+);
+
+// Fallback logic in case NODE_ENV isn't set but DATABASE_URL is
+if (!process.env.NODE_ENV && process.env.DATABASE_URL) {
+    // If we have a DATABASE_URL, assume we are in production-like environment
+    pool.options = proConfig;
+}
 
 module.exports = {
-  /**
-   * Abstraction for executing SQL queries.
-   * Logs the duration of queries if needed for debugging (optional).
-   * * @param {string} text - The SQL query text (e.g., "SELECT * FROM users WHERE id = $1")
-   * @param {Array} params - The parameters to safely inject into the query
-   * @returns {Promise} - Resolves with the query result
-   */
   query: (text, params) => pool.query(text, params),
 };
