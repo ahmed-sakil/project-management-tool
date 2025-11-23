@@ -1,8 +1,5 @@
-// client/src/config.js
-
-// Change this to TRUE when you want to push to GitHub/Production
 const isProduction = true; 
 
 export const API_URL = isProduction 
-  ? "https://pm-server-1ely.onrender.com" // <--- Your REAL Render URL
+  ? "https://pm-server-1ely.onrender.com"
   : "http://localhost:5000";

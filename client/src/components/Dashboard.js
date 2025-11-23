@@ -1,113 +1,114 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { API_URL } from "../config"; // <--- NEW IMPORT
+import { API_URL } from "../config";
 
 const Dashboard = ({ setAuth }) => {
+  const [name, setName] = useState("");
   const [boards, setBoards] = useState([]);
-  const [title, setTitle] = useState("");
+  const [newBoardTitle, setNewBoardTitle] = useState("");
 
-  // 1. Fetch existing boards from the server
-  // 1. Fetch existing boards from the server
-  async function getBoards() {
+  async function getProfile() {
     try {
-      const response = await fetch(`${API_URL}/api/boards`, {
-        headers: { token: localStorage.token },
+      const response = await fetch(`${API_URL}/api/dashboard`, {
+        method: "GET",
+        headers: { token: localStorage.token }
       });
       const parseRes = await response.json();
-
-      // SAFETY CHECK: Is it an array?
-      if (Array.isArray(parseRes)) {
-        setBoards(parseRes);
-      } else {
-        console.error("Server Error:", parseRes);
-        // If server returns an error (like invalid token), reset boards
-        setBoards([]); 
-        // Optional: If token is bad, force logout
-        if (response.status === 403 || response.status === 401) {
-             localStorage.removeItem("token");
-             setAuth(false);
-        }
-      }
+      setName(parseRes.name);
     } catch (err) {
       console.error(err.message);
     }
   }
 
-  // 2. Create a new board
-  const onSubmitForm = async (e) => {
-    e.preventDefault();
+  async function getBoards() {
     try {
-      const body = { title };
-      // UPDATED PATH
+      const response = await fetch(`${API_URL}/api/boards`, {
+        method: "GET",
+        headers: { token: localStorage.token }
+      });
+      const parseRes = await response.json();
+      setBoards(parseRes);
+    } catch (err) {
+      console.error(err.message);
+    }
+  }
+
+  const createBoard = async (e) => {
+    e.preventDefault();
+    if (!newBoardTitle.trim()) return;
+
+    try {
       const response = await fetch(`${API_URL}/api/boards`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          token: localStorage.token,
+        headers: { 
+            "Content-Type": "application/json",
+            token: localStorage.token 
         },
-        body: JSON.stringify(body),
+        body: JSON.stringify({ title: newBoardTitle })
       });
-
-      const parseRes = await response.json();
-
-      // Add the new board to the list immediately (so we don't need to refresh)
-      setBoards([...boards, parseRes]);
-      setTitle(""); // Clear the input box
+      
+      if (response.ok) {
+        setNewBoardTitle("");
+        getBoards();
+      }
     } catch (err) {
       console.error(err.message);
     }
   };
 
-  // 3. Run getBoards when the component loads
   useEffect(() => {
+    getProfile();
     getBoards();
   }, []);
 
-  // Logout function
-  const logout = (e) => {
-    e.preventDefault();
-    localStorage.removeItem("token");
-    setAuth(false);
-  };
-
   return (
     <div className="container mt-5">
-      {/* Header & Logout */}
-      <div className="d-flex justify-content-between align-items-center mb-5">
-        <h1>My Boards</h1>
-        <button className="btn btn-danger" onClick={logout}>
-          Logout
-        </button>
+      <div className="d-flex align-items-center justify-content-between mb-4">
+        <h2 className="fw-bold text-white">Welcome, {name}</h2>
       </div>
 
-      {/* Create Board Form */}
-      <form className="d-flex mb-5" onSubmit={onSubmitForm}>
-        <input
-          type="text"
-          className="form-control mr-3"
-          placeholder="Enter board title (e.g., Marketing Project)"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          required
-        />
-        <button className="btn btn-success">Create Board</button>
-      </form>
+      <div className="row justify-content-center mb-5">
+        <div className="col-md-8">
+          <div className="card shadow-lg"> 
+            <div className="card-body p-4">
+              <h4 className="card-title mb-3">Create a New Project Board</h4>
+              <form onSubmit={createBoard} className="d-flex gap-2">
+                <input 
+                  type="text" 
+                  className="form-control form-control-lg"
+                  placeholder="e.g., Marketing Campaign, House Renovation..." 
+                  value={newBoardTitle}
+                  onChange={(e) => setNewBoardTitle(e.target.value)}
+                />
+                <button className="btn btn-success btn-lg px-4">Create</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
 
-      {/* List of Boards */}
+      <h3 className="mb-4 pb-2 border-bottom border-secondary text-white">My Projects</h3>
+      
       <div className="row">
         {boards.length === 0 ? (
-          <p>No boards yet. Create one above!</p>
+           <div className="col-12 text-center mt-5 text-muted">
+              <h4>No projects found.</h4>
+              <p>Create your first board above to get started!</p>
+           </div>
         ) : (
           boards.map((board) => (
-            <div key={board.id} className="col-md-4 mb-3">
-              {/* This link will eventually go to the specific board page */}
-              <Link to={`/board/${board.id}`} style={{ textDecoration: 'none' }}>
-                <div className="card text-white bg-primary mb-3 cursor-pointer">
-                  <div className="card-body">
-                    <h3 className="card-title">{board.title}</h3>
-                  </div>
+            <div key={board.id} className="col-md-4 col-lg-3 mb-4">
+              <div className="card h-100 hover-shadow transition-all">
+                <div className="card-body d-flex flex-column">
+                  <h5 className="card-title text-truncate" title={board.title}>{board.title}</h5>
+                  <p className="card-text small flex-grow-1 text-muted">
+                      Project Board
+                  </p>
+                  <Link to={`/board/${board.id}`} className="btn btn-outline-dark w-100 mt-2">
+                    Open Board
+                  </Link>
                 </div>
-              </Link>
+              </div>
             </div>
           ))
         )}

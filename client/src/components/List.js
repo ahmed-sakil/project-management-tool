@@ -1,66 +1,94 @@
 import React, { useState } from "react";
-import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { useDroppable } from '@dnd-kit/core';
-import CardItem from './CardItem'; 
-import { API_URL } from "../config"; // <--- NEW IMPORT
+import { useDroppable } from "@dnd-kit/core";
+import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import CardItem from "./CardItem";
+import { API_URL } from "../config";
 
 const List = ({ list, cards, setCards }) => {
   const [newCardTitle, setNewCardTitle] = useState("");
 
   const { setNodeRef } = useDroppable({
-    id: `list-${list.id}`,
+    id: String(list.id),
   });
 
-  const listCards = Array.isArray(cards) ? cards : [];
-  const cardIds = listCards.map(card => `card-${card.id}`);
-
-  const createCard = async (e) => {
+  const addCard = async (e) => {
     e.preventDefault();
+    if (!newCardTitle.trim()) return;
+
     try {
-      const body = { title: newCardTitle, list_id: list.id };
-      
-      // UPDATED PATH: Uses API_URL
+      const body = { 
+          title: newCardTitle, 
+          list_id: list.id,
+          order: cards.length + 1 
+      };
+
       const response = await fetch(`${API_URL}/api/cards`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", token: localStorage.token },
+        headers: { 
+            "Content-Type": "application/json",
+            token: localStorage.token 
+        },
         body: JSON.stringify(body),
       });
 
       const newCard = await response.json();
-      
-      setCards(prev => ({ 
-        ...prev, 
-        [list.id]: [...(prev[list.id] || []), newCard] 
+
+      setCards((prev) => ({
+        ...prev,
+        [list.id]: [...(prev[list.id] || []), newCard],
       }));
+
       setNewCardTitle("");
-    } catch (err) { console.error(err.message); }
+    } catch (err) {
+      console.error(err.message);
+    }
   };
 
   return (
-    <div 
-        ref={setNodeRef} 
-        className="card flex-shrink-0" 
-        style={{ width: "280px", backgroundColor: "#ebecf0", minHeight: "100px" }}
-    >
-      <div className="card-body p-2">
-        <h5 className="card-title p-2">{list.title}</h5>
+    <div className="list-container d-flex flex-column" style={{ 
+        width: "100%", 
+        flexShrink: 0,
+        backgroundColor: "var(--bg-input)",
+        borderRadius: "8px",
+        border: "1px solid var(--color-border)",
+        maxHeight: "100%"
+    }}>
+      
+      <div className="p-3 font-weight-bold text-white border-bottom border-secondary">
+        <h5 className="mb-0" style={{ fontSize: "1rem", fontWeight: "bold" }}>
+            {list.title}
+        </h5>
+      </div>
 
-        <SortableContext items={cardIds} strategy={verticalListSortingStrategy}>
-            {listCards.map((card) => (
-                <CardItem key={card.id} card={card} />
-            ))}
+      <div ref={setNodeRef} className="flex-grow-1 p-2" style={{ minHeight: "50px", overflowY: "auto" }}>
+        <SortableContext 
+            id={String(list.id)} 
+            items={cards.map((c) => String(c.id))}
+            strategy={verticalListSortingStrategy}
+        >
+          {cards.map((card) => (
+            <CardItem key={card.id} card={card} />
+          ))}
         </SortableContext>
+      </div>
 
-        <form onSubmit={createCard} className="mt-2">
+      <div className="p-2">
+        <form onSubmit={addCard}>
           <input
             type="text"
-            className="form-control mb-2"
+            className="form-control form-control-sm mb-2"
             placeholder="+ Add a card"
+            style={{ 
+                backgroundColor: "#1e453e", 
+                border: "none", 
+                color: "white" 
+            }}
             value={newCardTitle}
             onChange={(e) => setNewCardTitle(e.target.value)}
-            required
           />
-          <button className="btn btn-primary btn-sm w-100">Add Card</button>
+          {newCardTitle && (
+              <button className="btn btn-success btn-sm w-100">Add</button>
+          )}
         </form>
       </div>
     </div>

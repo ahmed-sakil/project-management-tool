@@ -1,0 +1,1547 @@
+project-management-tool
+├─ README.md
+├─ client
+│  ├─ README.md
+│  ├─ build
+│  │  ├─ asset-manifest.json
+│  │  ├─ favicon.ico
+│  │  ├─ index.html
+│  │  ├─ logo192.png
+│  │  ├─ logo512.png
+│  │  ├─ manifest.json
+│  │  ├─ robots.txt
+│  │  └─ static
+│  │     └─ js
+│  │        ├─ main.d5be5d83.js
+│  │        ├─ main.d5be5d83.js.LICENSE.txt
+│  │        └─ main.d5be5d83.js.map
+│  ├─ package-lock.json
+│  ├─ package.json
+│  ├─ public
+│  │  ├─ favicon.ico
+│  │  ├─ index.html
+│  │  ├─ logo192.png
+│  │  ├─ logo512.png
+│  │  ├─ manifest.json
+│  │  └─ robots.txt
+│  └─ src
+│     ├─ App.js
+│     ├─ components
+│     │  ├─ Board.js
+│     │  ├─ CardItem.js
+│     │  ├─ Dashboard.js
+│     │  ├─ List.js
+│     │  ├─ Login.js
+│     │  └─ Register.js
+│     ├─ config.js
+│     ├─ index.css
+│     └─ index.js
+├─ fullfile.txt
+└─ server
+   ├─ .env
+   ├─ db.js
+   ├─ index.js
+   ├─ middleware
+   │  └─ authorization.js
+   ├─ nano.save
+   ├─ package-lock.json
+   ├─ package.json
+   └─ routes
+      ├─ auth.js
+      ├─ boards.js
+      ├─ cards.js
+      └─ lists.js
+this is the files tree of my project. here is some important files code.
+
+package.json:
+{
+  "name": "client",
+  "version": "0.1.0",
+  "homepage": "https://ahmed-sakil.github.io/project-management-tool",
+  "private": true,
+  "dependencies": {
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^13.5.0",
+    "axios": "^1.13.2",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "react-router-dom": "^7.9.6",
+    "react-scripts": "5.0.1",
+    "web-vitals": "^2.1.4"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "gh-pages": "^6.3.0"
+  }
+}
+
+index.html:
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#000000" />
+  <meta name="description" content="Web site created using create-react-app" />
+  <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+  <!--
+      manifest.json provides metadata used when your web app is installed on a
+      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
+    -->
+  <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+  <!--
+      Notice the use of %PUBLIC_URL% in the tags above.
+      It will be replaced with the URL of the `public` folder during the build.
+      Only files inside the `public` folder can be referenced from the HTML.
+
+      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
+      work correctly both with client-side routing and a non-root public URL.
+      Learn how to configure a non-root public URL by running `npm run build`.
+    -->
+  <title>Project Mennagement Tool</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+</head>
+
+<body>
+  <noscript>You need to enable JavaScript to run this app.</noscript>
+  <div id="root"></div>
+  <!--
+      This HTML file is a template.
+      If you open it directly in the browser, you will see an empty page.
+
+      You can add webfonts, meta tags, or analytics to this file.
+      The build step will place the bundled scripts into the <body> tag.
+
+      To begin the development, run `npm start` or `yarn start`.
+      To create a production bundle, use `npm run build` or `yarn build`.
+    -->
+</body>
+
+</html>
+
+App.js:
+import React, { Fragment, useState, useEffect } from 'react';
+import { HashRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+
+// Components
+import Dashboard from './components/Dashboard';
+import Login from './components/Login';
+import Register from './components/Register';
+import Board from './components/Board';
+import { API_URL } from "./config"; // <--- 1. NEW IMPORT
+
+function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const setAuth = (boolean) => {
+    setIsAuthenticated(boolean);
+  };
+
+  async function checkAuthenticated() {
+    try {
+      // 2. FIXED URL HERE:
+      const response = await fetch(`${API_URL}/api/auth/verify`, {
+        method: "GET",
+        headers: { token: localStorage.token }
+      });
+
+      const parseRes = await response.json();
+
+      parseRes === true ? setIsAuthenticated(true) : setIsAuthenticated(false);
+    } catch (err) {
+      console.error(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    checkAuthenticated();
+  }, []);
+
+  if (isLoading) {
+    return <div className="container mt-5"><h3>Checking credentials...</h3></div>;
+  }
+
+  return (
+    <Fragment>
+      <Router>
+        <div className="container">
+          <Routes>
+            <Route 
+              path="/login" 
+              element={!isAuthenticated ? <Login setAuth={setAuth} /> : <Navigate to="/dashboard" />} 
+            />
+            <Route 
+              path="/register" 
+              element={!isAuthenticated ? <Register setAuth={setAuth} /> : <Navigate to="/dashboard" />} 
+            />
+            <Route 
+              path="/dashboard" 
+              element={isAuthenticated ? <Dashboard setAuth={setAuth} /> : <Navigate to="/login" />} 
+            />
+            <Route 
+              path="/board/:id" 
+              element={isAuthenticated ? <Board /> : <Navigate to="/login" />} 
+            />
+
+            <Route path="/" element={<Navigate to="/login" />} />
+          </Routes>
+        </div>
+      </Router>
+    </Fragment>
+  );
+}
+
+export default App;
+
+config.js:
+// client/src/config.js
+
+// Change this to TRUE when you want to push to GitHub/Production
+const isProduction = true; 
+
+export const API_URL = isProduction 
+  ? "https://pm-server-1ely.onrender.com" // <--- Your REAL Render URL
+  : "http://localhost:5000";
+
+index.css:
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+index.js:
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './App';
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+    <App />
+);
+
+Board.js:
+import React, { useEffect, useState } from "react";
+import { useParams, Link } from "react-router-dom";
+import List from "./List";
+import { 
+  DndContext, 
+  closestCorners, 
+  useSensor, 
+  useSensors, 
+  PointerSensor 
+} from '@dnd-kit/core';
+import { arrayMove } from '@dnd-kit/sortable';
+import { API_URL } from "../config"; // <--- NEW IMPORT
+
+const Board = () => {
+  const { id } = useParams();
+  const [board, setBoard] = useState(null);
+  const [lists, setLists] = useState([]);
+  const [newListTitle, setNewListTitle] = useState("");
+  const [allCards, setAllCards] = useState({}); 
+
+  // Configure sensors to prevent accidental drags (require 5px movement)
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 5 },
+    })
+  );
+
+  // Helper to strip prefixes (e.g., "list-1" -> 1)
+  const cleanId = (strId) => {
+      if (!strId) return null;
+      return parseInt(String(strId).replace("list-", "").replace("card-", ""));
+  };
+
+  // Helper to find which List a card belongs to in state
+  const findContainer = (uniqueId) => {
+    if (!uniqueId) return null;
+    const listId = cleanId(uniqueId);
+    
+    // Case 1: ID is a List
+    if (allCards[listId]) return listId;
+
+    // Case 2: ID is a Card (Search inside all lists)
+    const foundListKey = Object.keys(allCards).find((key) => 
+        allCards[key].some(c => `card-${c.id}` === uniqueId)
+    );
+    
+    return foundListKey ? parseInt(foundListKey) : null;
+  };
+
+  const updateCardPosition = async (cardId, newListId, newOrder) => {
+      try {
+          const body = { list_id: newListId, order: newOrder };
+          // UPDATED PATH
+          await fetch(`${API_URL}/api/cards/${cardId}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json', token: localStorage.token },
+              body: JSON.stringify(body),
+          });
+      } catch (err) { console.error(err.message); }
+  };
+
+  const saveNewCardOrder = async (cardsToUpdate) => {
+    try {
+        // UPDATED PATH
+        await fetch(`${API_URL}/api/cards/reorder`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json', token: localStorage.token },
+            body: JSON.stringify({ cards: cardsToUpdate }),
+        });
+    } catch (err) { console.error(err.message); }
+  };
+
+  const getData = async () => {
+    try {
+      const header = { headers: { token: localStorage.token } };
+      
+      // UPDATED PATHS (3 Fetch calls here)
+      const boardRes = await fetch(`${API_URL}/api/boards/${id}`, header);
+      setBoard(await boardRes.json());
+
+      const listRes = await fetch(`${API_URL}/api/lists/${id}`, header);
+      const listData = await listRes.json();
+      setLists(listData);
+      
+      const cardsMap = {};
+      const cardPromises = listData.map(async (list) => {
+          const cardRes = await fetch(`${API_URL}/api/cards/${list.id}`, header);
+          const cards = await cardRes.json();
+          cardsMap[list.id] = cards;
+      });
+      
+      await Promise.all(cardPromises);
+      setAllCards(cardsMap);
+    } catch (err) { console.error(err.message); }
+  };
+
+  const handleDragEnd = async (event) => {
+    const { active, over } = event;
+    if (!over) return;
+
+    const activeId = String(active.id);
+    const overId = String(over.id);
+
+    const sourceListId = findContainer(activeId);
+    const destListId = findContainer(overId);
+
+    if (!sourceListId || !destListId) return;
+
+    const sourceCards = allCards[sourceListId] ?? [];
+    const destCards = allCards[destListId] ?? [];
+
+    const activeIndex = sourceCards.findIndex(c => `card-${c.id}` === activeId);
+    const overIndex = destCards.findIndex(c => `card-${c.id}` === overId);
+
+    let newSourceCards = [...sourceCards];
+    let newDestCards = [...destCards];
+
+    // Scenario 1: Moving between different lists
+    if (sourceListId !== destListId) {
+        const [movedCard] = newSourceCards.splice(activeIndex, 1);
+        movedCard.list_id = destListId;
+
+        let insertIndex;
+        if (overIndex >= 0) {
+            insertIndex = overIndex;
+        } else {
+            insertIndex = newDestCards.length + 1;
+        }
+
+        newDestCards.splice(insertIndex, 0, movedCard);
+
+        setAllCards(prev => ({
+            ...prev,
+            [sourceListId]: newSourceCards,
+            [destListId]: newDestCards
+        }));
+
+        const cardsToUpdate = newDestCards.map((c, i) => ({ id: c.id, order: i }));
+        await updateCardPosition(movedCard.id, destListId, insertIndex);
+        await saveNewCardOrder(cardsToUpdate);
+    } 
+    
+    // Scenario 2: Reordering in the same list
+    else if (activeIndex !== overIndex) {
+        const newCards = arrayMove(sourceCards, activeIndex, overIndex);
+        
+        setAllCards(prev => ({
+            ...prev,
+            [sourceListId]: newCards
+        }));
+
+        const cardsToUpdate = newCards.map((c, i) => ({ id: c.id, order: i }));
+        await saveNewCardOrder(cardsToUpdate);
+    }
+  };
+
+  const createList = async (e) => {
+    e.preventDefault();
+    try {
+      const body = { title: newListTitle, board_id: id };
+      // UPDATED PATH
+      const response = await fetch(`${API_URL}/api/lists`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", token: localStorage.token },
+        body: JSON.stringify(body),
+      });
+
+      const newList = await response.json();
+      setLists([...lists, newList]);
+      setNewListTitle(""); 
+      setAllCards(prev => ({ ...prev, [newList.id]: [] }));
+    } catch (err) { console.error(err.message); }
+  };
+
+  useEffect(() => {
+    getData();
+  }, [id]);
+
+  return (
+    <div className="container-fluid mt-5">
+      <Link to="/dashboard" className="btn btn-outline-dark mb-4">
+        ← Back to Dashboard
+      </Link>
+
+      {board && (
+        <div>
+          <h2 className="mb-4 text-white bg-dark p-3 rounded">{board.title}</h2>
+
+          <DndContext 
+            sensors={sensors} 
+            collisionDetection={closestCorners} 
+            onDragEnd={handleDragEnd} 
+          >
+            <div className="d-flex overflow-auto" style={{ gap: "20px", paddingBottom: "20px" }}>
+              {lists.map((list) => (
+                <List 
+                    key={list.id} 
+                    list={list} 
+                    cards={allCards[list.id] || []} 
+                    setCards={setAllCards} 
+                />
+              ))}
+
+              <div className="flex-shrink-0" style={{ width: "280px" }}>
+                <form onSubmit={createList} className="bg-light p-3 rounded shadow-sm">
+                  <input
+                    type="text"
+                    className="form-control mb-2"
+                    placeholder="+ Add another list"
+                    value={newListTitle}
+                    onChange={(e) => setNewListTitle(e.target.value)}
+                    required
+                  />
+                  <button className="btn btn-success btn-sm w-100">Add List</button>
+                </form>
+              </div>
+            </div>
+          </DndContext>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default Board;
+
+CardItem.js:
+import React from 'react';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+
+const CardItem = ({ card }) => {
+    const uniqueId = `card-${card.id}`;
+
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        transform,
+        transition,
+        isDragging,
+    } = useSortable({ id: uniqueId });
+
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+        opacity: isDragging ? 0.5 : 1,
+        cursor: 'grab', 
+        touchAction: 'none', 
+    };
+
+    return (
+        <div 
+            ref={setNodeRef} 
+            style={style} 
+            {...attributes} 
+            {...listeners} 
+            className="card card-body mb-2 shadow-sm"
+        >
+            {card.title}
+        </div>
+    );
+};
+
+export default CardItem;
+
+
+Dashboard.js:
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { API_URL } from "../config"; // <--- NEW IMPORT
+
+const Dashboard = ({ setAuth }) => {
+  const [boards, setBoards] = useState([]);
+  const [title, setTitle] = useState("");
+
+  // 1. Fetch existing boards from the server
+  // 1. Fetch existing boards from the server
+  async function getBoards() {
+    try {
+      const response = await fetch(`${API_URL}/api/boards`, {
+        headers: { token: localStorage.token },
+      });
+      const parseRes = await response.json();
+
+      // SAFETY CHECK: Is it an array?
+      if (Array.isArray(parseRes)) {
+        setBoards(parseRes);
+      } else {
+        console.error("Server Error:", parseRes);
+        // If server returns an error (like invalid token), reset boards
+        setBoards([]); 
+        // Optional: If token is bad, force logout
+        if (response.status === 403 || response.status === 401) {
+             localStorage.removeItem("token");
+             setAuth(false);
+        }
+      }
+    } catch (err) {
+      console.error(err.message);
+    }
+  }
+
+  // 2. Create a new board
+  const onSubmitForm = async (e) => {
+    e.preventDefault();
+    try {
+      const body = { title };
+      // UPDATED PATH
+      const response = await fetch(`${API_URL}/api/boards`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          token: localStorage.token,
+        },
+        body: JSON.stringify(body),
+      });
+
+      const parseRes = await response.json();
+
+      // Add the new board to the list immediately (so we don't need to refresh)
+      setBoards([...boards, parseRes]);
+      setTitle(""); // Clear the input box
+    } catch (err) {
+      console.error(err.message);
+    }
+  };
+
+  // 3. Run getBoards when the component loads
+  useEffect(() => {
+    getBoards();
+  }, []);
+
+  // Logout function
+  const logout = (e) => {
+    e.preventDefault();
+    localStorage.removeItem("token");
+    setAuth(false);
+  };
+
+  return (
+    <div className="container mt-5">
+      {/* Header & Logout */}
+      <div className="d-flex justify-content-between align-items-center mb-5">
+        <h1>My Boards</h1>
+        <button className="btn btn-danger" onClick={logout}>
+          Logout
+        </button>
+      </div>
+
+      {/* Create Board Form */}
+      <form className="d-flex mb-5" onSubmit={onSubmitForm}>
+        <input
+          type="text"
+          className="form-control mr-3"
+          placeholder="Enter board title (e.g., Marketing Project)"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          required
+        />
+        <button className="btn btn-success">Create Board</button>
+      </form>
+
+      {/* List of Boards */}
+      <div className="row">
+        {boards.length === 0 ? (
+          <p>No boards yet. Create one above!</p>
+        ) : (
+          boards.map((board) => (
+            <div key={board.id} className="col-md-4 mb-3">
+              {/* This link will eventually go to the specific board page */}
+              <Link to={`/board/${board.id}`} style={{ textDecoration: 'none' }}>
+                <div className="card text-white bg-primary mb-3 cursor-pointer">
+                  <div className="card-body">
+                    <h3 className="card-title">{board.title}</h3>
+                  </div>
+                </div>
+              </Link>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default Dashboard;
+
+
+List.js:
+import React, { useState } from "react";
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { useDroppable } from '@dnd-kit/core';
+import CardItem from './CardItem'; 
+import { API_URL } from "../config"; // <--- NEW IMPORT
+
+const List = ({ list, cards, setCards }) => {
+  const [newCardTitle, setNewCardTitle] = useState("");
+
+  const { setNodeRef } = useDroppable({
+    id: `list-${list.id}`,
+  });
+
+  const listCards = Array.isArray(cards) ? cards : [];
+  const cardIds = listCards.map(card => `card-${card.id}`);
+
+  const createCard = async (e) => {
+    e.preventDefault();
+    try {
+      const body = { title: newCardTitle, list_id: list.id };
+      
+      // UPDATED PATH: Uses API_URL
+      const response = await fetch(`${API_URL}/api/cards`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", token: localStorage.token },
+        body: JSON.stringify(body),
+      });
+
+      const newCard = await response.json();
+      
+      setCards(prev => ({ 
+        ...prev, 
+        [list.id]: [...(prev[list.id] || []), newCard] 
+      }));
+      setNewCardTitle("");
+    } catch (err) { console.error(err.message); }
+  };
+
+  return (
+    <div 
+        ref={setNodeRef} 
+        className="card flex-shrink-0" 
+        style={{ width: "280px", backgroundColor: "#ebecf0", minHeight: "100px" }}
+    >
+      <div className="card-body p-2">
+        <h5 className="card-title p-2">{list.title}</h5>
+
+        <SortableContext items={cardIds} strategy={verticalListSortingStrategy}>
+            {listCards.map((card) => (
+                <CardItem key={card.id} card={card} />
+            ))}
+        </SortableContext>
+
+        <form onSubmit={createCard} className="mt-2">
+          <input
+            type="text"
+            className="form-control mb-2"
+            placeholder="+ Add a card"
+            value={newCardTitle}
+            onChange={(e) => setNewCardTitle(e.target.value)}
+            required
+          />
+          <button className="btn btn-primary btn-sm w-100">Add Card</button>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export default List;
+
+
+Login.js:
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { API_URL } from "../config"; // <--- NEW IMPORT
+
+const Login = ({ setAuth }) => {
+    const [inputs, setInputs] = useState({
+        email: '',
+        password: ''
+    });
+
+    const { email, password } = inputs;
+
+    const onChange = (e) => {
+        setInputs({ ...inputs, [e.target.name]: e.target.value });
+    };
+
+    const onSubmitForm = async (e) => {
+    e.preventDefault();
+    try {
+      const body = { email, password };
+      
+      // UPDATED PATH
+      const response = await fetch(`${API_URL}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+
+      const parseRes = await response.json();
+
+      if (parseRes.token) {
+        localStorage.setItem('token', parseRes.token);
+        setAuth(true); 
+      } else {
+        setAuth(false);
+        alert(parseRes.message);
+      }
+    } catch (err) {
+      console.error(err.message);
+    }
+  };
+
+    return (
+        <div>
+            <h1 className="text-center my-5">Login</h1>
+            <form onSubmit={onSubmitForm}>
+                <input
+                    type="email"
+                    name="email"
+                    placeholder="email"
+                    className="form-control my-3"
+                    value={email}
+                    onChange={onChange}
+                />
+                <input
+                    type="password"
+                    name="password"
+                    placeholder="password"
+                    className="form-control my-3"
+                    value={password}
+                    onChange={onChange}
+                />
+                <button className="btn btn-success btn-block">Submit</button>
+            </form>
+            <Link to="/register">Register</Link>
+        </div>
+    );
+};
+
+export default Login;
+
+Register.js:
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom'; 
+import { API_URL } from "../config"; // <--- NEW IMPORT
+
+const Register = ({ setAuth }) => {
+    const [inputs, setInputs] = useState({
+        email: '',
+        password: '',
+        name: '' 
+    });
+
+    const { email, password, name } = inputs;
+
+    const onChange = (e) => {
+        setInputs({ ...inputs, [e.target.name]: e.target.value });
+    };
+
+    const onSubmitForm = async (e) => {
+        e.preventDefault(); 
+        try {
+            const body = { email, password, name };
+
+            // UPDATED PATH
+            const response = await fetch(`${API_URL}/api/auth/register`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+
+            const parseRes = await response.json();
+
+            if (parseRes.token) {
+                // Save token to local storage
+                localStorage.setItem('token', parseRes.token);
+                setAuth(true);
+            } else {
+                alert(parseRes.message || "Registration failed");
+            }
+
+        } catch (err) {
+            console.error(err.message);
+        }
+    };
+
+    return (
+        <div>
+            <h1 className="text-center my-5">Register</h1>
+            <form onSubmit={onSubmitForm}>
+                <input
+                    type="email"
+                    name="email"
+                    placeholder="email"
+                    className="form-control my-3"
+                    value={email}
+                    onChange={onChange}
+                />
+                <input
+                    type="password"
+                    name="password"
+                    placeholder="password"
+                    className="form-control my-3"
+                    value={password}
+                    onChange={onChange}
+                />
+                <button className="btn btn-success btn-block">Submit</button>
+            </form>
+            <Link to="/login">Login</Link>
+        </div>
+    );
+};
+
+export default Register;
+
+
+authorization.js:
+const jwt = require("jsonwebtoken");
+require("dotenv").config();
+
+module.exports = async (req, res, next) => {
+  try {
+    // 1. Get the token from the header
+    const jwtToken = req.header("token");
+
+    // 2. Check if token exists
+    if (!jwtToken) {
+      return res.status(403).json("Not Authorized");
+    }
+
+    // 3. Verify the token
+    const payload = jwt.verify(jwtToken, process.env.JWT_SECRET || "default_secret");
+
+    // 4. Add the user_id to the request so we can use it later
+    req.user = payload.user_id;
+
+    // 5. Continue to the actual route
+    next();
+
+  } catch (err) {
+    console.error(err.message);
+    return res.status(403).json("Not Authorized");
+  }
+};
+
+auth.js:
+const router = require('express').Router();
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const db = require('../db'); // Import our database connection
+const authorization = require('../middleware/authorization');
+
+// REGISTER ROUTE
+router.post('/register', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    // 1. Check if user exists
+    const userCheck = await db.query('SELECT * FROM users WHERE email = $1', [email]);
+    if (userCheck.rows.length > 0) {
+      return res.status(401).json({ message: 'User already exists!' });
+    }
+
+    // 2. Hash the password (encrypt it)
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    // 3. Save the user to the database
+    const newUser = await db.query(
+      'INSERT INTO users (email, password_hash) VALUES ($1, $2) RETURNING *',
+      [email, hashedPassword]
+    );
+
+    // 4. Generate a Token (JWT)
+    const token = jwt.sign(
+      { user_id: newUser.rows[0].id },
+      process.env.JWT_SECRET || 'default_secret',
+      { expiresIn: '1h' }
+    );
+
+    // 5. Send the token back to the user
+    res.json({ token });
+
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
+
+// LOGIN ROUTE
+router.post('/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    // 1. Check if user exists
+    const user = await db.query('SELECT * FROM users WHERE email = $1', [email]);
+    if (user.rows.length === 0) {
+      return res.status(401).json({ message: 'Invalid Credential' });
+    }
+
+    // 2. Check if password is correct
+    // Compare the password they typed with the hashed one in the DB
+    const validPassword = await bcrypt.compare(password, user.rows[0].password_hash);
+    
+    if (!validPassword) {
+      return res.status(401).json({ message: 'Invalid Credential' });
+    }
+
+    // 3. Generate Token
+    const token = jwt.sign(
+      { user_id: user.rows[0].id },
+      process.env.JWT_SECRET || 'default_secret',
+      { expiresIn: '1h' }
+    );
+
+    // 4. Send token
+    res.json({ token });
+
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
+
+// VERIFY ROUTE
+// This route checks if the token is valid. 
+// The frontend will use this to keep the user logged in if they refresh the page.
+router.get('/verify', authorization, async (req, res) => {
+  try {
+    res.json(true);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send("Server Error");
+  }
+});
+
+
+
+module.exports = router;
+
+
+board.js:
+const router = require("express").Router();
+const db = require("../db");
+const authorization = require("../middleware/authorization");
+
+// 1. CREATE A BOARD
+router.post("/", authorization, async (req, res) => {
+    try {
+        const { title } = req.body;
+
+        // req.user comes from the authorization middleware (it's the user_id)
+        const newBoard = await db.query(
+            "INSERT INTO boards (title, owner_id) VALUES ($1, $2) RETURNING *",
+            [title, req.user]
+        );
+
+        res.json(newBoard.rows[0]);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json("Server Error");
+    }
+});
+
+// 2. GET ALL BOARDS (Only for the logged-in user)
+router.get("/", authorization, async (req, res) => {
+    try {
+        const userBoards = await db.query(
+            "SELECT * FROM boards WHERE owner_id = $1",
+            [req.user]
+        );
+
+        res.json(userBoards.rows);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json("Server Error");
+    }
+});
+
+
+// 3. GET A SINGLE BOARD
+router.get("/:id", authorization, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Check if the board exists AND belongs to the logged-in user
+    const board = await db.query(
+      "SELECT * FROM boards WHERE id = $1 AND owner_id = $2",
+      [id, req.user]
+    );
+
+    if (board.rows.length === 0) {
+      return res.status(403).json("Not Authorized");
+    }
+
+    res.json(board.rows[0]);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json("Server Error");
+  }
+});
+
+module.exports = router;
+
+
+cards.js:
+const router = require("express").Router();
+const db = require("../db");
+const authorization = require("../middleware/authorization");
+
+// 1. CREATE A CARD
+router.post("/", authorization, async (req, res) => {
+  try {
+    const { title, list_id } = req.body;
+
+    const maxOrder = await db.query(
+      'SELECT MAX("order") as max_order FROM cards WHERE list_id = $1',
+      [list_id]
+    );
+    const newOrder = (maxOrder.rows[0].max_order || 0) + 1;
+
+    const newCard = await db.query(
+      'INSERT INTO cards (title, list_id, "order") VALUES ($1, $2, $3) RETURNING *',
+      [title, list_id, newOrder]
+    );
+
+    res.json(newCard.rows[0]);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json("Server Error");
+  }
+});
+
+// 2. GET CARDS FOR A SPECIFIC LIST
+router.get("/:listId", authorization, async (req, res) => {
+  try {
+    const { listId } = req.params;
+
+    const cards = await db.query(
+      'SELECT * FROM cards WHERE list_id = $1 ORDER BY "order" ASC',
+      [listId]
+    );
+
+    res.json(cards.rows);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json("Server Error");
+  }
+});
+
+// 3. UPDATE CARD (Drag-and-drop position/list change)
+router.put("/:id", authorization, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { list_id, order } = req.body;
+
+    const updatedCard = await db.query(
+      'UPDATE cards SET list_id = $1, "order" = $2 WHERE id = $3 RETURNING *',
+      [list_id, order, id]
+    );
+
+    if (updatedCard.rows.length === 0) {
+      return res.status(404).json("Card not found.");
+    }
+
+    res.json(updatedCard.rows[0]);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json("Server Error");
+  }
+});
+
+// 4. UPDATE MULTIPLE CARD ORDERS (Batch reorder)
+router.patch("/reorder", authorization, async (req, res) => {
+  try {
+    const { cards } = req.body;
+
+    if (!Array.isArray(cards) || cards.length === 0) {
+      return res.status(400).json("Invalid cards array provided.");
+    }
+
+    await db.query("BEGIN");
+    
+    for (const card of cards) {
+      await db.query(
+        'UPDATE cards SET "order" = $1 WHERE id = $2',
+        [card.order, card.id]
+      );
+    }
+
+    await db.query("COMMIT");
+    res.status(200).json("Card orders updated successfully.");
+  } catch (err) {
+    await db.query("ROLLBACK");
+    console.error("Reorder transaction failed:", err.message);
+    res.status(500).json("Server Error during reorder.");
+  }
+});
+
+module.exports = router;
+
+lists.js:
+const router = require("express").Router();
+const db = require("../db");
+const authorization = require("../middleware/authorization");
+
+// 1. CREATE A LIST
+router.post("/", authorization, async (req, res) => {
+  try {
+    const { title, board_id } = req.body;
+
+    // 1. Calculate the new order (put it at the end)
+    // We check the max order currently in the DB for this board
+    const maxOrder = await db.query(
+      'SELECT MAX("order") as max_order FROM lists WHERE board_id = $1',
+      [board_id]
+    );
+    // If there are no lists, start at 1. Otherwise, add 1 to the max.
+    const newOrder = (maxOrder.rows[0].max_order || 0) + 1;
+
+    // 2. Insert the new list
+    const newList = await db.query(
+      'INSERT INTO lists (title, board_id, "order") VALUES ($1, $2, $3) RETURNING *',
+      [title, board_id, newOrder]
+    );
+
+    res.json(newList.rows[0]);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json("Server Error");
+  }
+});
+
+// 2. GET ALL LISTS FOR A SPECIFIC BOARD
+router.get("/:boardId", authorization, async (req, res) => {
+  try {
+    const { boardId } = req.params;
+
+    const lists = await db.query(
+      'SELECT * FROM lists WHERE board_id = $1 ORDER BY "order" ASC',
+      [boardId]
+    );
+
+    res.json(lists.rows);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json("Server Error");
+  }
+});
+
+module.exports = router;
+
+db.js:
+// server/db.js
+const { Pool } = require('pg');
+require('dotenv').config();
+
+
+console.log("CHECKING ENV:", process.env.DATABASE_URL); 
+
+
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+});
+
+module.exports = {
+  query: (text, params) => pool.query(text, params),
+};
+
+index.js:
+// server/index.js
+
+require('dotenv').config();
+const express = require('express');
+const cors = require('cors');
+const db = require('./db'); // Imports your db.js file
+const authRoutes = require('./routes/auth');
+const dashboardRoutes = require('./routes/boards');
+const listRoutes = require('./routes/lists');
+const cardRoutes = require('./routes/cards');
+
+const app = express();
+
+// --- Middleware ---
+// Enable CORS for all routes
+app.use(cors());
+app.use(express.json());
+app.use('/api/auth', authRoutes);
+app.use('/api/boards', dashboardRoutes);
+app.use('/api/lists', listRoutes);
+app.use('/api/cards', cardRoutes);
+
+// --- Test Routes ---
+// A simple route to test the server is running
+app.get('/', (req, res) => {
+    res.json({ message: 'Hello from the backend!' });
+});
+
+// A route to test the database connection
+app.get('/api/test-db', async (req, res) => {
+    try {
+        const result = await db.query('SELECT NOW()'); // Simple query to get the current time from Postgres
+        res.json({
+            message: 'Database connection successful!',
+            time: result.rows[0].now,
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Database connection failed' });
+    }
+});
+
+// --- Start the Server ---
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+});
+
+
+and finally my database schemma is here:
+
+PostgreSQL database dump
+--
+
+\restrict K15YVufUebdS6X1qem3Hpm8TFK8MA1eOja6xOrD6g93MOUYyLXXPYmgVs6oUzu8
+
+-- Dumped from database version 14.19 (Ubuntu 14.19-0ubuntu0.22.04.1)
+-- Dumped by pg_dump version 14.19 (Ubuntu 14.19-0ubuntu0.22.04.1)
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+SET default_tablespace = '';
+
+SET default_table_access_method = heap;
+
+--
+-- Name: boards; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.boards (
+    id integer NOT NULL,
+    title character varying(255) NOT NULL,
+    owner_id integer NOT NULL
+);
+
+
+ALTER TABLE public.boards OWNER TO postgres;
+
+--
+-- Name: boards_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.boards_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.boards_id_seq OWNER TO postgres;
+
+--
+-- Name: boards_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.boards_id_seq OWNED BY public.boards.id;
+
+
+--
+-- Name: cards; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.cards (
+    id integer NOT NULL,
+    title character varying(255) NOT NULL,
+    "order" double precision NOT NULL,
+    list_id integer NOT NULL
+);
+
+
+ALTER TABLE public.cards OWNER TO postgres;
+
+--
+-- Name: cards_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.cards_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.cards_id_seq OWNER TO postgres;
+
+--
+-- Name: cards_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.cards_id_seq OWNED BY public.cards.id;
+
+
+--
+-- Name: lists; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.lists (
+    id integer NOT NULL,
+    title character varying(255) NOT NULL,
+    "order" double precision NOT NULL,
+    board_id integer NOT NULL
+);
+
+
+ALTER TABLE public.lists OWNER TO postgres;
+
+--
+-- Name: lists_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.lists_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.lists_id_seq OWNER TO postgres;
+
+--
+-- Name: lists_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.lists_id_seq OWNED BY public.lists.id;
+
+
+--
+-- Name: users; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.users (
+    id integer NOT NULL,
+    email character varying(255) NOT NULL,
+    password_hash character varying(255) NOT NULL,
+    created_at timestamp with time zone DEFAULT now()
+);
+
+
+ALTER TABLE public.users OWNER TO postgres;
+
+--
+-- Name: users_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.users_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.users_id_seq OWNER TO postgres;
+
+--
+-- Name: users_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.users_id_seq OWNED BY public.users.id;
+
+
+--
+-- Name: boards id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.boards ALTER COLUMN id SET DEFAULT nextval('public.boards_id_seq'::regclass);
+
+
+--
+-- Name: cards id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.cards ALTER COLUMN id SET DEFAULT nextval('public.cards_id_seq'::regclass);
+
+
+--
+-- Name: lists id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.lists ALTER COLUMN id SET DEFAULT nextval('public.lists_id_seq'::regclass);
+
+
+--
+-- Name: users id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.users ALTER COLUMN id SET DEFAULT nextval('public.users_id_seq'::regclass);
+
+
+--
+-- Name: boards boards_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.boards
+    ADD CONSTRAINT boards_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: cards cards_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.cards
+    ADD CONSTRAINT cards_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: lists lists_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.lists
+    ADD CONSTRAINT lists_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: users users_email_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.users
+    ADD CONSTRAINT users_email_key UNIQUE (email);
+
+
+--
+-- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.users
+    ADD CONSTRAINT users_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: boards fk_board_owner; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.boards
+    ADD CONSTRAINT fk_board_owner FOREIGN KEY (owner_id) REFERENCES public.users(id) ON DELETE CASCADE;
+
+
+--
+-- Name: cards fk_card_list; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.cards
+    ADD CONSTRAINT fk_card_list FOREIGN KEY (list_id) REFERENCES public.lists(id) ON DELETE CASCADE;
+
+
+--
+-- Name: lists fk_list_board; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.lists
+    ADD CONSTRAINT fk_list_board FOREIGN KEY (board_id) REFERENCES public.boards(id) ON DELETE CASCADE;
+
+
+--
+-- PostgreSQL database dump complete
+--
+
+\unrestrict K15YVufUebdS6X1qem3Hpm8TFK8MA1eOja6xOrD6g93MOUYyLXXPYmgVs6oUzu8
+

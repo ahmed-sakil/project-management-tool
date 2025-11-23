@@ -1,27 +1,37 @@
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
+/**
+ * Authorization Middleware
+ * Verifies the JWT token from the request header.
+ * If valid, attaches the user ID to req.user for downstream use.
+ */
 module.exports = async (req, res, next) => {
   try {
-    // 1. Get the token from the header
+    // Extract token from the custom 'token' header
     const jwtToken = req.header("token");
 
-    // 2. Check if token exists
+    // Deny access if no token is provided
     if (!jwtToken) {
       return res.status(403).json("Not Authorized");
     }
 
-    // 3. Verify the token
-    const payload = jwt.verify(jwtToken, process.env.JWT_SECRET || "default_secret");
+    // Verify token validity against the environment secret
+    const payload = jwt.verify(
+      jwtToken, 
+      process.env.JWT_SECRET || "default_secret"
+    );
 
-    // 4. Add the user_id to the request so we can use it later
+    // Attach the authenticated user's ID to the request object
+    // This allows subsequent routes to identify the user
     req.user = payload.user_id;
 
-    // 5. Continue to the actual route
+    // Proceed to the next middleware or route handler
     next();
 
   } catch (err) {
-    console.error(err.message);
+    // Log verification failure (e.g., expired token, invalid signature)
+    console.error("Auth Middleware Error:", err.message);
     return res.status(403).json("Not Authorized");
   }
 };

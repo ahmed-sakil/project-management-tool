@@ -1,74 +1,114 @@
-import React, { Fragment, useState, useEffect } from 'react';
-import { HashRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
+import { API_URL } from "./config";
 
-// Components
-import Dashboard from './components/Dashboard';
-import Login from './components/Login';
-import Register from './components/Register';
-import Board from './components/Board';
-import { API_URL } from "./config"; // <--- 1. NEW IMPORT
+import Login from "./components/Login";
+import Register from "./components/Register";
+import Dashboard from "./components/Dashboard";
+import Board from "./components/Board";
+import ForgotPassword from "./components/ForgotPassword";
+import ResetPassword from "./components/ResetPassword";
+import Landing from "./components/Landing";
+
+import Navbar from "./components/layout/Navbar";
+import Footer from "./components/layout/Footer";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true); 
 
   const setAuth = (boolean) => {
     setIsAuthenticated(boolean);
   };
 
-  async function checkAuthenticated() {
+  async function isAuth() {
     try {
-      // 2. FIXED URL HERE:
       const response = await fetch(`${API_URL}/api/auth/verify`, {
         method: "GET",
         headers: { token: localStorage.token }
       });
 
       const parseRes = await response.json();
-
       parseRes === true ? setIsAuthenticated(true) : setIsAuthenticated(false);
     } catch (err) {
       console.error(err.message);
+      setIsAuthenticated(false);
     } finally {
-      setIsLoading(false);
+      setIsLoading(false); 
     }
   }
 
   useEffect(() => {
-    checkAuthenticated();
+    isAuth();
   }, []);
 
   if (isLoading) {
-    return <div className="container mt-5"><h3>Checking credentials...</h3></div>;
+    return (
+      <div className="d-flex justify-content-center align-items-center vh-100" style={{ backgroundColor: "var(--bg-body-base)" }}>
+        <div className="spinner-border text-light" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <Fragment>
-      <Router>
-        <div className="container">
-          <Routes>
-            <Route 
-              path="/login" 
-              element={!isAuthenticated ? <Login setAuth={setAuth} /> : <Navigate to="/dashboard" />} 
-            />
-            <Route 
-              path="/register" 
-              element={!isAuthenticated ? <Register setAuth={setAuth} /> : <Navigate to="/dashboard" />} 
-            />
-            <Route 
-              path="/dashboard" 
-              element={isAuthenticated ? <Dashboard setAuth={setAuth} /> : <Navigate to="/login" />} 
-            />
-            <Route 
-              path="/board/:id" 
-              element={isAuthenticated ? <Board /> : <Navigate to="/login" />} 
-            />
+    <div className="d-flex flex-column min-vh-100"> 
+      <Navbar isAuthenticated={isAuthenticated} setAuth={setAuth} />
 
-            <Route path="/" element={<Navigate to="/login" />} />
-          </Routes>
-        </div>
-      </Router>
-    </Fragment>
+      <div className="flex-grow-1"> 
+        <Routes>
+          <Route 
+            path="/" 
+            element={<Landing isAuthenticated={isAuthenticated} />} 
+          />
+
+          <Route
+            path="/login"
+            element={
+              !isAuthenticated ? (
+                <Login setAuth={setAuth} />
+              ) : (
+                <Navigate to="/dashboard" />
+              )
+            }
+          />
+          <Route
+            path="/register"
+            element={
+              !isAuthenticated ? (
+                <Register setAuth={setAuth} />
+              ) : (
+                <Navigate to="/login" />
+              )
+            }
+          />
+          
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
+
+          <Route
+            path="/dashboard"
+            element={
+              isAuthenticated ? (
+                <Dashboard setAuth={setAuth} />
+              ) : (
+                <Navigate to="/login" />
+              )
+            }
+          />
+          
+          <Route 
+            path="/board/:id" 
+            element={
+               isAuthenticated ? <Board /> : <Navigate to="/login" /> 
+            } 
+          />
+        </Routes>
+      </div>
+
+      <Footer />
+    </div>
   );
 }
 
