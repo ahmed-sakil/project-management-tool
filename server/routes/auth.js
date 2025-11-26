@@ -124,22 +124,16 @@ router.post('/forgot-password', async (req, res) => {
       [token, expires, email]
     );
 
-    // 4. Configure Email Transporter (USING PORT 587 TLS)
+// PASTE THIS NEW BLOCK
+    // Using 'service' lets Nodemailer handle the port/host/security logic automatically
     const transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
-      port: 587,          // Changed to 587 (Standard TLS)
-      secure: false,      // Must be false for 587
+      service: 'gmail', 
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
       },
-      tls: {
-        rejectUnauthorized: false 
-      },
-      connectionTimeout: 10000, 
-      greetingTimeout: 10000 
     });
-
+    
     // Use the Environment Variable if available, otherwise fallback to localhost
     const clientURL = process.env.CLIENT_URL || "http://localhost:3000";
     
