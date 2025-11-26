@@ -125,16 +125,30 @@ router.post('/forgot-password', async (req, res) => {
     );
 
     console.log("DEBUG EMAIL USER:", process.env.EMAIL_USER);
-    
+    console.log("📧 Configuring Transporter for Render...");
+
+    // 4. Configure Email Transporter (THE ULTIMATE FIX)
+    // We use explicit Host/Port and force IPv4 to bypass Render's IPv6 issues
     const transporter = nodemailer.createTransport({
-      service: 'gmail', 
+      host: "smtp.gmail.com", 
+      port: 587,              // Use Port 587 (TLS)
+      secure: false,          // Must be false for port 587
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
       },
+      tls: {
+        rejectUnauthorized: false,
+        ciphers: "SSLv3"
+      },
+      // ⚠️ CRITICAL: Force IPv4. Fixes ETIMEDOUT on Render.
+      family: 4, 
+      
+      // Connection Debugging settings
+      connectionTimeout: 10000,
+      greetingTimeout: 5000,
+      socketTimeout: 10000
     });
-    
-    // ---------------------------------------------
 
     // Use the Environment Variable if available, otherwise fallback to localhost
     const clientURL = process.env.CLIENT_URL || "http://localhost:3000";
@@ -149,8 +163,12 @@ router.post('/forgot-password', async (req, res) => {
       text: `You requested a password reset.\n\nPlease click the following link to reset your password:\n${resetUrl}\n\nIf you did not request this, please ignore this email.\n`,
     };
 
+    console.log("✅ Transporter Configured. Attempting to send mail...");
+
     // 5. Send Email
     await transporter.sendMail(mailOptions);
+    console.log("🚀 Email sent successfully!");
+    
     res.json({ message: 'Recovery email sent' });
 
   } catch (err) {
