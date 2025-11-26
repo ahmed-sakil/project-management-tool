@@ -126,6 +126,7 @@ router.post('/forgot-password', async (req, res) => {
 
 // PASTE THIS NEW BLOCK
     // Using 'service' lets Nodemailer handle the port/host/security logic automatically
+    console.log("DEBUG EMAIL USER:", process.env.EMAIL_USER);
     const transporter = nodemailer.createTransport({
       service: 'gmail', 
       auth: {
@@ -133,7 +134,7 @@ router.post('/forgot-password', async (req, res) => {
         pass: process.env.EMAIL_PASS,
       },
     });
-    
+
     // Use the Environment Variable if available, otherwise fallback to localhost
     const clientURL = process.env.CLIENT_URL || "http://localhost:3000";
     
