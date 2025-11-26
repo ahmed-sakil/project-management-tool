@@ -125,29 +125,31 @@ router.post('/forgot-password', async (req, res) => {
     );
 
     console.log("DEBUG EMAIL USER:", process.env.EMAIL_USER);
-    console.log("📧 Configuring Transporter for Render...");
+    console.log("📧 Configuring Transporter (SSL + IPv4)...");
 
-    // 4. Configure Email Transporter (THE ULTIMATE FIX)
-    // We use explicit Host/Port and force IPv4 to bypass Render's IPv6 issues
+    
+
+    // 4. Configure Email Transporter (THE FINAL ATTEMPT)
+    // We are switching to Port 465 (SSL) + IPv4. 
+    // This is distinct from the previous attempts using Port 587.
     const transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com", 
-      port: 587,              // Use Port 587 (TLS)
-      secure: false,          // Must be false for port 587
+      host: "smtp.gmail.com",
+      port: 465,            // <--- CHANGE: SSL Port
+      secure: true,         // <--- CHANGE: Must be true for 465
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
       },
-      tls: {
-        rejectUnauthorized: false,
-        ciphers: "SSLv3"
-      },
-      // ⚠️ CRITICAL: Force IPv4. Fixes ETIMEDOUT on Render.
+      // ⚠️ CRITICAL: Force IPv4 to bypass Render IPv6 timeout issues
       family: 4, 
       
-      // Connection Debugging settings
-      connectionTimeout: 10000,
-      greetingTimeout: 5000,
-      socketTimeout: 10000
+      // Increased Timeouts to give Gmail time to respond
+      connectionTimeout: 20000, 
+      greetingTimeout: 20000,
+      socketTimeout: 20000,
+      
+      logger: true,
+      debug: true
     });
 
     // Use the Environment Variable if available, otherwise fallback to localhost
