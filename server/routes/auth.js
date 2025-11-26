@@ -124,33 +124,23 @@ router.post('/forgot-password', async (req, res) => {
       [token, expires, email]
     );
 
+
     console.log("DEBUG EMAIL USER:", process.env.EMAIL_USER);
-    console.log("📧 Configuring Transporter (SSL + IPv4)...");
+    console.log("📧 Configuring Transporter for BREVO...");
 
-    
-
-    // 4. Configure Email Transporter (THE FINAL ATTEMPT)
-    // We are switching to Port 465 (SSL) + IPv4. 
-    // This is distinct from the previous attempts using Port 587.
     const transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
-      port: 465,            // <--- CHANGE: SSL Port
-      secure: true,         // <--- CHANGE: Must be true for 465
+      host: "smtp-relay.brevo.com", // <--- BREVO SERVER
+      port: 587,                    // <--- Standard Port
+      secure: false,                // <--- False for 587
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
       },
-      // ⚠️ CRITICAL: Force IPv4 to bypass Render IPv6 timeout issues
-      family: 4, 
-      
-      // Increased Timeouts to give Gmail time to respond
-      connectionTimeout: 20000, 
-      greetingTimeout: 20000,
-      socketTimeout: 20000,
-      
+      // Debug settings
       logger: true,
       debug: true
     });
+    
 
     // Use the Environment Variable if available, otherwise fallback to localhost
     const clientURL = process.env.CLIENT_URL || "http://localhost:3000";
