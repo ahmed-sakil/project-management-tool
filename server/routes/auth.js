@@ -124,11 +124,11 @@ router.post('/forgot-password', async (req, res) => {
       [token, expires, email]
     );
 
-    // 4. Configure Email Transporter (SECURE SSL CONFIGURATION)
+    // 4. Configure Email Transporter (USING PORT 587 TLS)
     const transporter = nodemailer.createTransport({
       host: "smtp.gmail.com",
-      port: 465,
-      secure: true, // Use SSL
+      port: 587,          // Changed to 587 (Standard TLS)
+      secure: false,      // Must be false for 587
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
@@ -143,7 +143,7 @@ router.post('/forgot-password', async (req, res) => {
     // Use the Environment Variable if available, otherwise fallback to localhost
     const clientURL = process.env.CLIENT_URL || "http://localhost:3000";
     
-    // FIX: Added /#/ to support HashRouter on GitHub Pages
+    // HashRouter Support
     const resetUrl = `${clientURL}/#/reset-password/${token}`;
 
     const mailOptions = {
@@ -158,8 +158,9 @@ router.post('/forgot-password', async (req, res) => {
     res.json({ message: 'Recovery email sent' });
 
   } catch (err) {
-    console.error("Forgot Password Error:", err.message);
-    res.status(500).send('Server Error');
+    console.error("Forgot Password DEBUG:", err);
+    // Send the REAL error to the frontend so we can debug it
+    res.status(500).json({ message: `Debug Error: ${err.message}` });
   }
 });
 
