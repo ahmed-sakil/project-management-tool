@@ -41,7 +41,8 @@ const Navbar = ({ isAuthenticated, setAuth }) => {
                             height: "45px",
                             width: "45px",
                             objectFit: "contain",
-                            marginRight: "12px"
+                            marginRight: "12px",
+                            borderRadius: "8px"
                         }}
                     />
 
