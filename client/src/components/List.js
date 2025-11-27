@@ -4,7 +4,7 @@ import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable"
 import CardItem from "./CardItem";
 import { API_URL } from "../config";
 
-const List = ({ list, cards, setCards }) => {
+const List = ({ list, cards, setCards, refreshBoard }) => {
   const [newCardTitle, setNewCardTitle] = useState("");
 
   const { setNodeRef } = useDroppable({
@@ -33,9 +33,12 @@ const List = ({ list, cards, setCards }) => {
 
       const newCard = await response.json();
 
+      // --- CHANGE HERE: Attach autoOpen flag ---
+      const cardWithFlag = { ...newCard, autoOpen: true };
+
       setCards((prev) => ({
         ...prev,
-        [list.id]: [...(prev[list.id] || []), newCard],
+        [list.id]: [...(prev[list.id] || []), cardWithFlag],
       }));
 
       setNewCardTitle("");
@@ -67,7 +70,11 @@ const List = ({ list, cards, setCards }) => {
             strategy={verticalListSortingStrategy}
         >
           {cards.map((card) => (
-            <CardItem key={card.id} card={card} />
+            <CardItem 
+                key={card.id} 
+                card={card} 
+                refreshBoard={refreshBoard}
+            />
           ))}
         </SortableContext>
       </div>

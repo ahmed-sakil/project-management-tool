@@ -1,0 +1,174 @@
+/* 1. Floating Container */
+.time-widget-container {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  z-index: 1000;
+  
+  /* Glassmorphism Base */
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  
+  border-radius: 15px;
+  color: white;
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  cursor: pointer;
+  overflow: hidden;
+}
+
+/* 2. Hover Effect */
+.time-widget-container:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 40px 0 rgba(0, 0, 0, 0.5);
+}
+
+
+/* 3. Small Clock State */
+.clock-face {
+  padding: 15px 25px;
+  text-align: center;
+  min-width: 140px;
+  display: flex;
+  flex-direction: column; /* Stacks items vertically */
+  gap: 2px;
+}
+
+.date-display {
+  font-size: 1.2rem;   /* Increased size */
+  font-weight: 800;    /* Extra Bold */
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #fff;
+  line-height: 1.2;
+}
+
+.time-display {
+  font-size: 1rem;     /* Smaller size */
+  font-weight: 500;    /* Normal weight */
+  opacity: 0.8;        /* Slight fade to show hierarchy */
+}
+
+
+/* 4. Expanded Calendar State - UPDATED FOR RESPONSIVENESS */
+.time-widget-container.expanded {
+  width: 350px; /* Default width for desktop */
+  max-width: 90vw; /* Never exceed 90% of the viewport width */
+  height: auto;
+  cursor: default;
+  background: rgba(30, 30, 30, 0.85);
+}
+
+.calendar-wrapper {
+  padding: 20px;
+  position: relative;
+  animation: fadeIn 0.5s ease;
+}
+
+/* Close Button (X) */
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 24px;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: 0.2s;
+  z-index: 10;
+}
+
+.close-btn:hover {
+  opacity: 1;
+  color: #ff6b6b;
+}
+
+.current-time-footer {
+  text-align: center;
+  margin-top: 15px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  opacity: 0.8;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  padding-top: 10px;
+}
+
+/* --- OVERRIDING REACT-CALENDAR DEFAULT STYLES FOR DARK THEME --- */
+.react-calendar {
+  background: transparent !important;
+  border: none !important;
+  font-family: inherit !important;
+  width: 100% !important;
+}
+
+.react-calendar__navigation button {
+  color: white !important;
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+.react-calendar__navigation button:enabled:hover,
+.react-calendar__navigation button:enabled:focus {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  border-radius: 8px;
+}
+
+.react-calendar__month-view__weekdays__weekday {
+  color: rgba(255, 255, 255, 0.6) !important;
+  font-size: 0.8rem;
+  text-decoration: none !important;
+}
+
+.react-calendar__tile {
+  color: white !important;
+  padding: 10px !important;
+  border-radius: 8px;
+}
+
+.react-calendar__tile:enabled:hover,
+.react-calendar__tile:enabled:focus {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.react-calendar__tile--now {
+  background: rgba(255, 215, 0, 0.3) !important; 
+  border: 1px solid gold !important;
+}
+
+.react-calendar__tile--active {
+  background: #0d6efd !important; 
+  color: white !important;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* --- MOBILE OPTIMIZATIONS (NEW) --- */
+@media (max-width: 500px) {
+  .time-widget-container {
+    bottom: 20px;
+    right: 50%; /* Start positioning from center */
+    transform: translateX(50%); /* Center horizontally */
+  }
+
+  .time-widget-container:hover {
+    transform: translateX(50%) translateY(-2px); /* Maintain centering on hover */
+  }
+
+  .time-widget-container.expanded {
+    width: 90vw; /* 90% of screen width on mobile */
+    max-width: 350px;
+    right: 50%;
+    transform: translateX(50%); /* Keep it centered */
+  }
+
+  /* Make calendar tiles slightly smaller to fit narrow screens */
+  .react-calendar__tile {
+    padding: 8px !important;
+    font-size: 0.9rem;
+  }
+}

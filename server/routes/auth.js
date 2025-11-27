@@ -74,11 +74,25 @@ router.post('/login', validInfo, async (req, res) => {
 });
 
 /**
- * @route   GET /auth/verify
+ * @route   GET /api/auth/verify
+ * @desc    Verify JWT token validity AND check if user exists
+ * @access  Private
  */
 router.get('/verify', authorization, async (req, res) => {
   try {
+    // 1. The middleware says the signature is valid and gives us req.user (the ID)
+    
+    // 2. BUT, let's double-check if this user actually exists in the DB
+    const user = await db.query("SELECT id FROM users WHERE id = $1", [req.user]);
+    
+    // 3. If user is not found (because you cleared the DB), return false
+    if (user.rows.length === 0) {
+        return res.status(401).json(false);
+    }
+
+    // 4. User exists and token is valid
     res.json(true);
+
   } catch (err) {
     console.error("Verify Error:", err.message);
     res.status(500).send("Server Error");

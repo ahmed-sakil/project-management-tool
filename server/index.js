@@ -16,6 +16,7 @@ const boardRoutes = require('./routes/boards');
 const listRoutes = require('./routes/lists');
 const cardRoutes = require('./routes/cards');
 const dashboardRoutes = require('./routes/dashboard');
+// Note: We can require notifications directly below, or import it here.
 
 // Initialize Express App
 const app = express();
@@ -37,6 +38,10 @@ app.use('/api/lists', listRoutes);
 app.use('/api/cards', cardRoutes);
 // Mount user profile routes at /api/dashboard
 app.use('/api/dashboard', dashboardRoutes);
+
+// --- 👇 THIS WAS MISSING! ADD THIS LINE 👇 ---
+app.use('/api/notifications', require('./routes/notifications'));
+// ----------------------------------------------
 
 // --- Health Check / Test Routes ---
 

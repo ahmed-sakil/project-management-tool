@@ -1,0 +1,111 @@
+/* Card Base Style */
+.task-card {
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 10px;
+    margin-bottom: 8px;
+    border-radius: 6px;
+    cursor: grab;
+    color: white;
+    
+    /* FIX 1: Remove actual borders to prevent layout jumping */
+    border: none;
+    
+    /* FIX 2: Use "Ring" Shadow to fake a border (0px layout space) */
+    box-shadow: 0 0 0 1px transparent; 
+    
+    /* FIX 3: CRITICAL for DnD - Only animate colors/opacity. 
+       NEVER animate 'all' or 'transform', otherwise dragging lags. */
+    transition: background-color 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+    
+    position: relative;
+    box-sizing: border-box; 
+    
+    /* Ensure hardware acceleration for smoother dragging */
+    touch-action: none; 
+}
+
+/* Hover Effect */
+.task-card:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+    /* Add a subtle white border using shadow on hover */
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2);
+}
+
+/* When editing */
+.task-card.editing {
+    background-color: rgba(0, 0, 0, 0.3);
+    cursor: default !important;
+    /* Stronger border when editing */
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.3);
+}
+
+/* --- THE GREEN GLOW (If Due Today) --- */
+.glow-green {
+    /* 1. Green fake border (1px) 
+       2. Green outer glow (10px blur) */
+    box-shadow: 0 0 0 1px #2ecc71, 0 0 10px rgba(46, 204, 113, 0.6) !important;
+}
+
+/* Hovering over a Green Glow card shouldn't break it */
+.task-card.glow-green:hover {
+    box-shadow: 0 0 0 1px #2ecc71, 0 0 12px rgba(46, 204, 113, 0.8) !important;
+}
+
+/* Edit Icon */
+.edit-icon {
+    opacity: 0;
+    cursor: pointer;
+    color: #bbb;
+    transition: 0.2s;
+    font-size: 0.9rem;
+}
+
+.task-card:hover .edit-icon {
+    opacity: 1;
+}
+
+.edit-icon:hover {
+    color: white;
+    transform: scale(1);
+}
+
+/* Date Badge */
+.date-badge {
+    font-size: 0.75rem;
+    color: #ccc;
+    display: flex;
+    align-items: center;
+}
+
+/* --- INLINE EDIT FORM STYLES --- */
+.edit-input {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255,255,255,0.1) !important;
+    color: white !important;
+    font-size: 0.9rem;
+}
+
+.edit-input:focus {
+    background: rgba(255, 255, 255, 0.2) !important;
+    border-color: rgba(255,255,255,0.3) !important;
+    box-shadow: none !important;
+}
+
+/* Archive Icon */
+.archive-icon {
+    cursor: pointer;
+    color: #aaa;
+    font-size: 1.1rem;
+    padding: 4px;
+    border-radius: 4px;
+    transition: 0.2s;
+}
+.archive-icon:hover {
+    color: #e74c3c;
+    background: rgba(255,255,255,0.1);
+}
+
+.btn-sm {
+    font-size: 0.8rem;
+    padding: 4px 8px;
+}
