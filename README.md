@@ -1,30 +1,56 @@
-🚀 PlanStack
-A modern, full-stack Project Management Tool built with the PERN stack (PostgreSQL, Express, React, Node.js). It features a beautiful "Dark Glassmorphism" UI, drag-and-drop task management, and secure authentication.
+# 🚀 PlanStack - Project Management Tool
 
-👉 Live Demo (Replace with your actual link if different)
+A powerful, collaborative, and open-source project management platform designed to help teams organize tasks, track deadlines, and move projects from **To-Do** to **Done**.
 
-✨ Key Features
-🔐 Secure Authentication: Full Login/Registration system using JWT & Bcrypt.
+### 🔗 **[Click Here to Try the Live Demo](https://ahmed-sakil.github.io/project-management-tool)**
 
-📧 Password Reset: Forgot password flow via Email (Nodemailer).
+---
 
-🎨 Glassmorphism UI: specific macOS-inspired dark theme with frosted glass effects.
+## ✨ Key Features
 
-📋 Kanban Boards: Create multiple project boards.
+### 🛠 **Core Productivity**
+* **Kanban Boards:** Create unlimited boards to organize distinct projects.
+* **Drag & Drop Workflow:** Smoothly move cards between lists and reorder them using `@dnd-kit`.
+* **Task Management:** Add lists and cards instantly.
+* **Task Details:** Rename cards, set specific **Due Dates**, and archive completed tasks.
 
-🖱️ Drag & Drop: Smooth, accessible drag-and-drop for Cards using @dnd-kit.
+### 🤝 **Collaboration & Sharing**
+* **Team Sharing:** Invite other users to your board via email.
+* **Shared Workspace:** View boards shared with you in a dedicated "Shared with Me" section on the dashboard.
+* **Roles:** Owners retain full control, while members can collaborate.
 
-📱 Fully Responsive: Adaptive grid layout that works on Desktop and Mobile.
+### 🔔 **Smart Alerts & UX**
+* **Notification System:** Get real-time alerts when you are invited to a new board.
+* **Visual Cues:** Cards due **Today** automatically glow **Green** for instant visibility.
+* **Responsive Design:** Fully optimized for Desktop, Tablet, and Mobile.
+* **Glassmorphism UI:** Modern, dark-themed interface with glass effects.
 
-⚡ Real-time Updates: Instant UI updates using optimistic UI rendering.
+---
 
-🛠️ Tech Stack
-Frontend: React.js, React Router v6, Bootstrap 5, @dnd-kit (Core/Sortable).
+## 🏗 Tech Stack
 
-Backend: Node.js, Express.js.
+This project was built using the **PERN Stack**:
 
-Database: PostgreSQL (using UUIDs).
+* **Frontend:** React.js, Bootstrap 5, dnd-kit (Drag & Drop), React Toastify.
+* **Backend:** Node.js, Express.js.
+* **Database:** PostgreSQL (Hosted on Render).
+* **Authentication:** JWT (JSON Web Tokens) & Bcrypt encryption.
+* **Deployment:** GitHub Pages (Frontend) & Render (Backend/Database).
 
-Security: JSON Web Tokens (JWT), Bcryptjs, CORS.
+---
 
-Tools: Nodemailer (Emails), Dotenv.
+## 📖 How to Use
+
+1.  **Register** for a free account.
+2.  **Create a Board** (e.g., "Web Development", "Marketing").
+3.  **Add Lists** (e.g., "Backlog", "In Progress", "Done").
+4.  **Add Cards** for individual tasks.
+5.  **Set Due Dates** by clicking the Edit (Pen) icon on a card.
+6.  **Invite Team Members** by clicking the "Share" button and entering their email.
+7.  **Check Notifications** via the Bell icon to see invites from others.
+
+---
+
+### 👤 Author
+
+Developed by **Ahmed Sakil**.
